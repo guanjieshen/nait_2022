@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md ##Feature Engineering
 # MAGIC 
-# MAGIC At this point the we want to apply additional feature engineering to create a denormalized dataset in order to do model development.
+# MAGIC At this point the __data scientist__ would apply feature engineering to create a denormalized dataset to do model development.
 
 # COMMAND ----------
 
@@ -80,16 +80,26 @@ display(family_size_df)
 
 # COMMAND ----------
 
+# MAGIC %md #### Drop features that are likely to be irrelevant to the ML problem.
+# MAGIC 
+# MAGIC For example `PassengerId` has no relevance on whether a passenger survived or not.
+
+# COMMAND ----------
+
+drop_features = family_size_df.drop('PassengerId', 'ParentsChildren','SiblingsSpouses','Ticket')
+
+# COMMAND ----------
+
 # MAGIC %md Let's organize some of the newly created features into a new Dataframe
 
 # COMMAND ----------
 
-titanic_features = family_size_df
+titanic_features = drop_features
 
 titanic_features.write \
   .format("delta") \
   .mode("overwrite") \
-  .saveAsTable("titanic.passenger_train_features")
+  .saveAsTable("titanic.passengers_train_features")
 
 
 # COMMAND ----------
@@ -124,8 +134,11 @@ def addAdditionalFeatures(input_table, output_table):
   # Add family size feature
   family_size_df = has_cabin_df.withColumn("FamilySize", col("SiblingsSpouses") + col("ParentsChildren"))
   
+  # Drop irrelevant features
+  drop_features_df = family_size_df.drop('PassengerId', 'ParentsChildren','SiblingsSpouses','Ticket')
+  
   # Write to Delta Table
-  family_size_df.write.format("delta").saveAsTable(output_table)
+  drop_features_df.write.mode("overwrite").format("delta").saveAsTable(output_table)
    
 
 # COMMAND ----------
