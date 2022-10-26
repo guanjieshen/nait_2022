@@ -6,7 +6,7 @@
 
 # COMMAND ----------
 
-# MAGIC % pip install databricks-automl-runtime
+# MAGIC %pip install databricks-automl-runtime
 
 # COMMAND ----------
 
