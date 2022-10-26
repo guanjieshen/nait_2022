@@ -22,6 +22,12 @@
 # COMMAND ----------
 
 # MAGIC %md ## 1. Perform Initial Setup
+# MAGIC 
+# MAGIC Let's first create a database to hold the data assets for this example, and set that database as the default for this notebook.
+
+# COMMAND ----------
+
+# MAGIC %sql CREATE DATABASE IF NOT EXISTS titanic
 
 # COMMAND ----------
 
@@ -29,9 +35,23 @@
 
 # COMMAND ----------
 
-dbfs_path = 'dbfs:/FileStore/titanic/'
-df_train = spark.read.csv(dbfs_path+'train.csv', header = "True", inferSchema = "True")
-df_test = spark.read.csv(dbfs_path+'test.csv', header = "True", inferSchema = "True")
+# MAGIC %md We can use the SparkFiles API to download data from a URL and load into a DataFrame.
+
+# COMMAND ----------
+
+from pyspark import SparkFiles
+
+test_url = "https://raw.githubusercontent.com/guanjieshen/nait_2022/master/titanic_test.csv"
+train_url = "https://raw.githubusercontent.com/guanjieshen/nait_2022/master/titanic_train.csv"
+
+sc.addFile(test_url)
+sc.addFile(train_url)
+
+test_path = SparkFiles.get('titanic_test.csv')
+train_path = SparkFiles.get('titanic_train.csv')
+
+df_train = spark.read.csv("file://" + train_path, header="True", inferSchema="True")
+df_test = spark.read.csv("file://" + test_path, header="True", inferSchema="True")
 
 # COMMAND ----------
 
